@@ -6,7 +6,8 @@ import DimensionPicker from "@/components/DimensionPicker";
 import ScreenshotUploader from "@/components/ScreenshotUploader";
 import ScreenshotCard from "@/components/ScreenshotCard";
 import ExportPanel from "@/components/ExportPanel";
-import PreviewGrid from "@/components/PreviewGrid";
+import DeviceMockupCanvas from "@/components/DeviceMockupCanvas";
+import StoreUploadPanel from "@/components/StoreUploadPanel";
 import { useToast } from "@/hooks/use-toast";
 import { Layers, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -117,10 +118,10 @@ export default function Index() {
               onToggle={togglePreset}
             />
           </div>
-          <div className="w-full sm:w-72 lg:w-80">
-            <PreviewGrid screenshots={screenshots} selectedPresets={selectedPresets} />
-          </div>
         </div>
+
+        {/* Device Mockup Canvas */}
+        <DeviceMockupCanvas screenshots={screenshots} selectedPresets={selectedPresets} />
 
         {/* Upload */}
         <ScreenshotUploader onUpload={handleUpload} />
@@ -148,6 +149,9 @@ export default function Index() {
 
         {/* Export */}
         <ExportPanel screenshots={screenshots} selectedPresets={selectedPresets} />
+
+        {/* Store Upload */}
+        <StoreUploadPanel screenshots={screenshots} selectedPresets={selectedPresets} />
       </main>
     </div>
   );
