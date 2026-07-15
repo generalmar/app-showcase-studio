@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { Platform, getPresetsByPlatform } from "@/lib/dimensions";
 import { ScreenshotItem, imageToBase64 } from "@/lib/imageUtils";
+import { TemplateConfig, defaultTemplate } from "@/lib/template";
 import PlatformTabs from "@/components/PlatformTabs";
 import DimensionPicker from "@/components/DimensionPicker";
 import ScreenshotUploader from "@/components/ScreenshotUploader";
@@ -8,6 +9,7 @@ import ScreenshotCard from "@/components/ScreenshotCard";
 import ExportPanel from "@/components/ExportPanel";
 import DeviceMockupCanvas from "@/components/DeviceMockupCanvas";
 import StoreUploadPanel from "@/components/StoreUploadPanel";
+import TemplateSettings from "@/components/TemplateSettings";
 import { useToast } from "@/hooks/use-toast";
 import { Layers, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +21,7 @@ export default function Index() {
   );
   const [screenshots, setScreenshots] = useState<ScreenshotItem[]>([]);
   const [beautifyingIds, setBeautifyingIds] = useState<Set<string>>(new Set());
+  const [template, setTemplate] = useState<TemplateConfig>(defaultTemplate);
   const { toast } = useToast();
 
   const handlePlatformChange = (p: Platform) => {
@@ -38,6 +41,14 @@ export default function Index() {
 
   const handleLabelChange = (id: string, label: string) => {
     setScreenshots((prev) => prev.map((s) => (s.id === id ? { ...s, label } : s)));
+  };
+
+  const handleHeadlineChange = (id: string, headline: string) => {
+    setScreenshots((prev) => prev.map((s) => (s.id === id ? { ...s, headline } : s)));
+  };
+
+  const handleSubtitleChange = (id: string, subtitle: string) => {
+    setScreenshots((prev) => prev.map((s) => (s.id === id ? { ...s, subtitle } : s)));
   };
 
   const handleRemove = (id: string) => {
@@ -108,20 +119,25 @@ export default function Index() {
       </header>
 
       <main className="container max-w-6xl mx-auto px-6 py-8 space-y-8">
+        {/* Template settings */}
+        <TemplateSettings template={template} onChange={setTemplate} />
+
         {/* Platform + Dimensions */}
-        <div className="flex flex-col sm:flex-row sm:items-start gap-6">
-          <div className="space-y-6 flex-1">
-            <PlatformTabs active={platform} onChange={handlePlatformChange} />
-            <DimensionPicker
-              platform={platform}
-              selected={selectedPresets}
-              onToggle={togglePreset}
-            />
-          </div>
+        <div className="space-y-6">
+          <PlatformTabs active={platform} onChange={handlePlatformChange} />
+          <DimensionPicker
+            platform={platform}
+            selected={selectedPresets}
+            onToggle={togglePreset}
+          />
         </div>
 
-        {/* Device Mockup Canvas */}
-        <DeviceMockupCanvas screenshots={screenshots} selectedPresets={selectedPresets} />
+        {/* Preview Canvas */}
+        <DeviceMockupCanvas
+          screenshots={screenshots}
+          selectedPresets={selectedPresets}
+          template={template}
+        />
 
         {/* Upload */}
         <ScreenshotUploader onUpload={handleUpload} />
@@ -132,12 +148,14 @@ export default function Index() {
             <h3 className="text-sm font-mono font-medium text-muted-foreground uppercase tracking-wider">
               Screenshots ({screenshots.length})
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {screenshots.map((ss) => (
                 <ScreenshotCard
                   key={ss.id}
                   item={ss}
                   onLabelChange={handleLabelChange}
+                  onHeadlineChange={handleHeadlineChange}
+                  onSubtitleChange={handleSubtitleChange}
                   onRemove={handleRemove}
                   onBeautify={handleBeautify}
                   isBeautifying={beautifyingIds.has(ss.id)}
@@ -148,10 +166,18 @@ export default function Index() {
         )}
 
         {/* Export */}
-        <ExportPanel screenshots={screenshots} selectedPresets={selectedPresets} />
+        <ExportPanel
+          screenshots={screenshots}
+          selectedPresets={selectedPresets}
+          template={template}
+        />
 
         {/* Store Upload */}
-        <StoreUploadPanel screenshots={screenshots} selectedPresets={selectedPresets} />
+        <StoreUploadPanel
+          screenshots={screenshots}
+          selectedPresets={selectedPresets}
+          template={template}
+        />
       </main>
     </div>
   );
