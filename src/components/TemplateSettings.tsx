@@ -1,6 +1,8 @@
 import { TemplateConfig } from "@/lib/template";
+import { fontOptions, ensureFontLoaded, getFontFamily } from "@/lib/fonts";
 import { Input } from "@/components/ui/input";
 import { Palette, Type } from "lucide-react";
+import { useEffect } from "react";
 
 interface TemplateSettingsProps {
   template: TemplateConfig;
@@ -28,6 +30,11 @@ function isLightColor(hex: string): boolean {
 
 export default function TemplateSettings({ template, onChange }: TemplateSettingsProps) {
   const update = (patch: Partial<TemplateConfig>) => onChange({ ...template, ...patch });
+
+  // Preload all font options for preview swatches
+  useEffect(() => {
+    fontOptions.forEach((f) => ensureFontLoaded(f.id));
+  }, []);
 
   const applyPreset = (bg: string, accent: string) => {
     const light = isLightColor(bg);
