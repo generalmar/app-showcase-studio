@@ -114,6 +114,38 @@ export default function TemplateSettings({ template, onChange }: TemplateSetting
         <ColorField label="Subtext" value={template.subtextColor} onChange={(v) => update({ subtextColor: v })} />
       </div>
 
+      {/* Font selection */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <Type size={14} className="text-muted-foreground" />
+          <label className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">
+            Font Style
+          </label>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          {fontOptions.map((f) => {
+            const active = template.fontId === f.id;
+            return (
+              <button
+                key={f.id}
+                onClick={() => update({ fontId: f.id })}
+                className={`flex flex-col items-start gap-0.5 rounded-lg border-2 p-3 text-left transition-all ${
+                  active ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground bg-background"
+                }`}
+                style={{ fontFamily: getFontFamily(f.id) }}
+              >
+                <span className="text-base font-semibold text-foreground leading-tight">
+                  {f.label}
+                </span>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                  {f.category}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Device frame toggle */}
       <label className="flex items-center gap-2 cursor-pointer">
         <input
