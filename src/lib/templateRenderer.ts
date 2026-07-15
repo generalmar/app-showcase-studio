@@ -1,4 +1,5 @@
 import { TemplateConfig, ScreenshotTemplate } from "./template";
+import { ensureFontLoaded, getFontFamily } from "./fonts";
 
 // Load an image and return HTMLImageElement
 function loadImage(url: string): Promise<HTMLImageElement> {
@@ -79,6 +80,22 @@ export async function renderTemplate(
   canvas.height = targetHeight;
   const ctx = canvas.getContext("2d")!;
 
+  // Ensure selected font is loaded before drawing text
+  ensureFontLoaded(template.fontId);
+  const fontFamily = getFontFamily(template.fontId);
+  try {
+    // Preload key weights so canvas measures/draws correctly
+    if ((document as any).fonts?.load) {
+      await Promise.all([
+        (document as any).fonts.load(`600 40px ${fontFamily}`),
+        (document as any).fonts.load(`800 110px ${fontFamily}`),
+        (document as any).fonts.load(`400 32px ${fontFamily}`),
+      ]);
+    }
+  } catch {
+    // ignore
+  }
+
   const isLandscape = targetWidth > targetHeight;
   const scale = Math.min(targetWidth, targetHeight) / 1080; // scale factor based on ref 1080
 
@@ -109,7 +126,7 @@ export async function renderTemplate(
   // ── App name (top) ──
   const appNameSize = Math.max(24, 40 * scale);
   ctx.fillStyle = template.textColor;
-  ctx.font = `600 ${appNameSize}px "Inter", system-ui, sans-serif`;
+  ctx.font = `600 ${appNameSize}px ${fontFamily}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
   const appNameY = padding * 1.2;
@@ -134,7 +151,7 @@ export async function renderTemplate(
 
   // ── Headline ──
   const headlineSize = Math.max(48, (isLandscape ? 80 : 110) * scale);
-  ctx.font = `800 ${headlineSize}px "Inter", system-ui, sans-serif`;
+  ctx.font = `800 ${headlineSize}px ${fontFamily}`;
   ctx.fillStyle = template.textColor;
   ctx.textAlign = "center";
   const headlineY = appNameY + appNameSize * 2.2;
@@ -149,7 +166,7 @@ export async function renderTemplate(
 
   // ── Subtitle ──
   const subtitleSize = Math.max(20, 32 * scale);
-  ctx.font = `400 ${subtitleSize}px "Inter", system-ui, sans-serif`;
+  ctx.font = `400 ${subtitleSize}px ${fontFamily}`;
   ctx.fillStyle = template.subtextColor;
   const subtitleY = headlineY + headlineHeight + subtitleSize * 0.5;
   drawWrappedText(
