@@ -1,8 +1,12 @@
+import type { ScreenshotTemplate } from "./template";
+
 export interface ScreenshotItem {
   id: string;
   file: File;
   originalUrl: string;
   label: string;
+  headline: string;
+  subtitle: string;
   resizedUrls: Record<string, string>; // presetId -> dataUrl
 }
 
