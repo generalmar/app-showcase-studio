@@ -6,6 +6,7 @@ export interface TemplateConfig {
   textColor: string;
   subtextColor: string;
   showDeviceFrame: boolean;
+  fontId: string;
 }
 
 export const defaultTemplate: TemplateConfig = {
@@ -16,6 +17,7 @@ export const defaultTemplate: TemplateConfig = {
   textColor: "#ffffff",
   subtextColor: "#d1e0d8",
   showDeviceFrame: true,
+  fontId: "inter",
 };
 
 export interface ScreenshotTemplate {
