@@ -2,19 +2,22 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload, Loader2, Apple, Smartphone, ChevronDown, ChevronUp, KeyRound } from "lucide-react";
-import { ScreenshotItem, resizeImage, dataUrlToBlob } from "@/lib/imageUtils";
+import { ScreenshotItem, dataUrlToBlob } from "@/lib/imageUtils";
 import { dimensionPresets } from "@/lib/dimensions";
+import { TemplateConfig } from "@/lib/template";
+import { renderTemplate } from "@/lib/templateRenderer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface StoreUploadPanelProps {
   screenshots: ScreenshotItem[];
   selectedPresets: string[];
+  template: TemplateConfig;
 }
 
 type StoreTarget = "ios" | "android" | null;
 
-export default function StoreUploadPanel({ screenshots, selectedPresets }: StoreUploadPanelProps) {
+export default function StoreUploadPanel({ screenshots, selectedPresets, template }: StoreUploadPanelProps) {
   const [target, setTarget] = useState<StoreTarget>(null);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
@@ -48,9 +51,15 @@ export default function StoreUploadPanel({ screenshots, selectedPresets }: Store
 
       for (const ss of screenshots) {
         for (const preset of targetPresets) {
-          const resized = await resizeImage(ss.originalUrl, preset.width, preset.height);
+          const rendered = await renderTemplate(
+            ss.originalUrl,
+            template,
+            { headline: ss.headline, subtitle: ss.subtitle },
+            preset.width,
+            preset.height
+          );
           assets.push({
-            base64: resized,
+            base64: rendered,
             width: preset.width,
             height: preset.height,
             label: ss.label || "screenshot",
