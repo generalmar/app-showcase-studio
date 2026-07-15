@@ -14,13 +14,18 @@ export default function ScreenshotUploader({ onUpload }: ScreenshotUploaderProps
       if (!files) return;
       const items: ScreenshotItem[] = Array.from(files)
         .filter((f) => f.type.startsWith("image/"))
-        .map((file) => ({
-          id: generateId(),
-          file,
-          originalUrl: URL.createObjectURL(file),
-          label: file.name.replace(/\.[^.]+$/, ""),
-          resizedUrls: {},
-        }));
+        .map((file) => {
+          const label = file.name.replace(/\.[^.]+$/, "");
+          return {
+            id: generateId(),
+            file,
+            originalUrl: URL.createObjectURL(file),
+            label,
+            headline: label.replace(/[-_]/g, " "),
+            subtitle: "A short description of this screen",
+            resizedUrls: {},
+          };
+        });
       if (items.length) onUpload(items);
     },
     [onUpload]
