@@ -10,14 +10,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Layers, Palette, Image as ImageIcon, Eye, Download, Upload, Ruler } from "lucide-react";
+import { Layers, Palette, Image as ImageIcon, Eye, Upload } from "lucide-react";
 
 export type DashboardSection =
   | "brand"
-  | "dimensions"
   | "screenshots"
   | "preview"
-  | "export"
   | "publish";
 
 const NAV_GROUPS: {
@@ -26,24 +24,18 @@ const NAV_GROUPS: {
 }[] = [
   {
     label: "Design",
-    items: [
-      { id: "brand", title: "Brand & Template", icon: Palette },
-      { id: "dimensions", title: "Dimensions", icon: Ruler },
-    ],
+    items: [{ id: "brand", title: "Brand & Template", icon: Palette }],
   },
   {
     label: "Assets",
     items: [
       { id: "screenshots", title: "Screenshots", icon: ImageIcon },
-      { id: "preview", title: "Preview Canvas", icon: Eye },
+      { id: "preview", title: "Preview & Export", icon: Eye },
     ],
   },
   {
     label: "Deliver",
-    items: [
-      { id: "export", title: "Export ZIP", icon: Download },
-      { id: "publish", title: "Publish to Stores", icon: Upload },
-    ],
+    items: [{ id: "publish", title: "Publish to Stores", icon: Upload }],
   },
 ];
 
