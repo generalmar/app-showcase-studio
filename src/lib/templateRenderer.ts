@@ -100,38 +100,79 @@ export async function renderTemplate(
   const scale = Math.min(targetWidth, targetHeight) / 1080; // scale factor based on ref 1080
 
   // ── Background ──
-  ctx.fillStyle = template.backgroundColor;
-  ctx.fillRect(0, 0, targetWidth, targetHeight);
+  if (template.backgroundStyle === "gradient") {
+    const angle = ((template.gradientAngle ?? 135) * Math.PI) / 180;
+    const cx = targetWidth / 2;
+    const cy = targetHeight / 2;
+    const len = Math.max(targetWidth, targetHeight);
+    const dx = (Math.cos(angle) * len) / 2;
+    const dy = (Math.sin(angle) * len) / 2;
+    const grad = ctx.createLinearGradient(cx - dx, cy - dy, cx + dx, cy + dy);
+    grad.addColorStop(0, template.backgroundColor);
+    grad.addColorStop(1, template.backgroundColor2);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
+  } else if (template.backgroundStyle === "mesh") {
+    ctx.fillStyle = template.backgroundColor;
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
+    const radial = ctx.createRadialGradient(
+      targetWidth * 0.2,
+      targetHeight * 0.2,
+      0,
+      targetWidth * 0.2,
+      targetHeight * 0.2,
+      targetWidth * 0.9
+    );
+    radial.addColorStop(0, withAlpha(template.backgroundColor2, 0.9));
+    radial.addColorStop(1, withAlpha(template.backgroundColor2, 0));
+    ctx.fillStyle = radial;
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
+    const radial2 = ctx.createRadialGradient(
+      targetWidth * 0.85,
+      targetHeight * 0.8,
+      0,
+      targetWidth * 0.85,
+      targetHeight * 0.8,
+      targetWidth * 0.7
+    );
+    radial2.addColorStop(0, withAlpha(template.accentColor, 0.35));
+    radial2.addColorStop(1, withAlpha(template.accentColor, 0));
+    ctx.fillStyle = radial2;
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
+  } else {
+    ctx.fillStyle = template.backgroundColor;
+    ctx.fillRect(0, 0, targetWidth, targetHeight);
+  }
 
-  // Subtle organic blobs for texture
-  const blobColor = darken(template.backgroundColor, 0.25);
-  ctx.fillStyle = blobColor;
-  ctx.beginPath();
-  ctx.arc(targetWidth * 0.9, targetHeight * 0.15, targetWidth * 0.5, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(targetWidth * 0.05, targetHeight * 0.85, targetWidth * 0.4, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Very subtle lighter overlay
-  ctx.fillStyle = withAlpha(template.textColor, 0.03);
-  ctx.fillRect(0, 0, targetWidth, targetHeight);
+  // Decorative blobs
+  const intensity = template.blobIntensity ?? "subtle";
+  if (intensity !== "none") {
+    const alpha = intensity === "strong" ? 0.9 : 0.5;
+    ctx.fillStyle = withAlpha(darken(template.backgroundColor, 0.3), alpha);
+    ctx.beginPath();
+    ctx.arc(targetWidth * 0.9, targetHeight * 0.15, targetWidth * 0.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = withAlpha(template.accentColor, intensity === "strong" ? 0.15 : 0.06);
+    ctx.beginPath();
+    ctx.arc(targetWidth * 0.05, targetHeight * 0.85, targetWidth * 0.4, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   // ── Layout regions ──
   const padding = targetWidth * 0.06;
   const textAreaHeight = isLandscape ? targetHeight * 0.35 : targetHeight * 0.36;
-  const deviceAreaTop = textAreaHeight;
-  const deviceAreaHeight = targetHeight - deviceAreaTop - padding;
+  const textOnTop = (template.textPosition ?? "top") === "top";
+  const deviceAreaTop = textOnTop ? textAreaHeight : padding;
+  const deviceAreaHeight = targetHeight - textAreaHeight - padding;
 
-  // ── App name (top) ──
+  // ── App name ──
   const appNameSize = Math.max(24, 40 * scale);
   ctx.fillStyle = template.textColor;
   ctx.font = `600 ${appNameSize}px ${fontFamily}`;
   ctx.textAlign = "center";
   ctx.textBaseline = "top";
-  const appNameY = padding * 1.2;
+  const appNameY = textOnTop ? padding * 1.2 : targetHeight - textAreaHeight + padding * 0.4;
 
-  // Simple logo dot before app name
   const appNameWidth = ctx.measureText(template.appName).width;
   const dotSize = appNameSize * 0.7;
   const dotX = targetWidth / 2 - appNameWidth / 2 - dotSize - 12;

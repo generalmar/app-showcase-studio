@@ -86,10 +86,8 @@ export default function Index() {
 
   const sectionMeta: Record<DashboardSection, { title: string; subtitle: string }> = {
     brand: { title: "Brand & Template", subtitle: "Set colors, fonts, and copy for your marketing screenshots" },
-    dimensions: { title: "Dimensions", subtitle: "Choose the device sizes you want to generate" },
     screenshots: { title: "Screenshots", subtitle: "Upload, label, and beautify your source screens" },
-    preview: { title: "Preview Canvas", subtitle: "Zoom and pan through every generated variant" },
-    export: { title: "Export ZIP", subtitle: "Download all sizes packaged by platform" },
+    preview: { title: "Preview & Export", subtitle: "Pick dimensions, preview every variant, then export a ZIP" },
     publish: { title: "Publish to Stores", subtitle: "Push directly to App Store Connect or Google Play" },
   };
 
@@ -97,17 +95,6 @@ export default function Index() {
     switch (section) {
       case "brand":
         return <TemplateSettings template={template} onChange={setTemplate} />;
-      case "dimensions":
-        return (
-          <div className="space-y-6">
-            <PlatformTabs active={platform} onChange={handlePlatformChange} />
-            <DimensionPicker
-              platform={platform}
-              selected={selectedPresets}
-              onToggle={togglePreset}
-            />
-          </div>
-        );
       case "screenshots":
         return (
           <div className="space-y-6">
@@ -117,7 +104,7 @@ export default function Index() {
                 <h3 className="text-sm font-mono font-medium text-muted-foreground uppercase tracking-wider">
                   Screenshots ({screenshots.length})
                 </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {screenshots.map((ss) => (
                     <ScreenshotCard
                       key={ss.id}
@@ -137,19 +124,59 @@ export default function Index() {
         );
       case "preview":
         return (
-          <DeviceMockupCanvas
-            screenshots={screenshots}
-            selectedPresets={selectedPresets}
-            template={template}
-          />
-        );
-      case "export":
-        return (
-          <ExportPanel
-            screenshots={screenshots}
-            selectedPresets={selectedPresets}
-            template={template}
-          />
+          <div className="space-y-6">
+            {/* Dimensions picker */}
+            <div className="rounded-xl border border-border surface-elevated p-5 space-y-4">
+              <div>
+                <h3 className="text-sm font-mono font-medium text-foreground">
+                  1. Choose device sizes
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Select the store dimensions you want to generate.
+                </p>
+              </div>
+              <PlatformTabs active={platform} onChange={handlePlatformChange} />
+              <DimensionPicker
+                platform={platform}
+                selected={selectedPresets}
+                onToggle={togglePreset}
+              />
+            </div>
+
+            {/* Preview canvas */}
+            <div className="rounded-xl border border-border surface-elevated p-5 space-y-4">
+              <div>
+                <h3 className="text-sm font-mono font-medium text-foreground">
+                  2. Preview every variant
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Scroll, zoom, and pan through the generated screenshots.
+                </p>
+              </div>
+              <DeviceMockupCanvas
+                screenshots={screenshots}
+                selectedPresets={selectedPresets}
+                template={template}
+              />
+            </div>
+
+            {/* Export */}
+            <div className="rounded-xl border border-border surface-elevated p-5 space-y-4">
+              <div>
+                <h3 className="text-sm font-mono font-medium text-foreground">
+                  3. Export ZIP
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Download a ZIP with every screenshot rendered at every selected size.
+                </p>
+              </div>
+              <ExportPanel
+                screenshots={screenshots}
+                selectedPresets={selectedPresets}
+                template={template}
+              />
+            </div>
+          </div>
         );
       case "publish":
         return (
